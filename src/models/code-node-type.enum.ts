@@ -1,4 +1,4 @@
 export enum CodeNodeType {
   array = 'array',
-  object = 'object'
+  object = 'object',
 }
