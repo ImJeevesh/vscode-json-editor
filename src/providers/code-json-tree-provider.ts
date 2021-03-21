@@ -4,9 +4,7 @@ import * as path from 'path';
 import { CodeNodeType } from '../models/code-node-type.enum';
 
 export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
-  private _notifyTreeChanges = new vscode.EventEmitter<
-    number | undefined | void
-  >();
+  private _notifyTreeChanges = new vscode.EventEmitter<number | undefined | void>();
   readonly onDidChangeTreeData = this._notifyTreeChanges.event;
 
   private _textEditor?: vscode.TextEditor;
@@ -18,19 +16,14 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
   getTreeItem(position: number): vscode.TreeItem {
     const path = parser.getLocation(this._text, position).path;
     const node = parser.findNodeAtLocation(this._root!, path)!;
-    const treeItem = new vscode.TreeItem(
-      this._getLabel(node),
-      this._getCollapsibleState(node)
-    );
+    const treeItem = new vscode.TreeItem(this._getLabel(node), this._getCollapsibleState(node));
     treeItem.contextValue = node.type;
     return treeItem;
   }
 
   getChildren(position?: number): vscode.ProviderResult<number[]> {
     if (!position) {
-      return Promise.resolve(
-        this._root ? this._getChildrenOffsets(this._root!) : []
-      );
+      return Promise.resolve(this._root ? this._getChildrenOffsets(this._root!) : []);
     }
     const path = parser.getLocation(this._text, position).path;
     const node = parser.findNodeAtLocation(this._root!, path);
@@ -52,39 +45,25 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     const isTreeActive =
       vscode.window.activeTextEditor?.document.uri.scheme === 'file' &&
       !!vscode.window.activeTextEditor.document.languageId.match(/^jsonc?$/);
-    vscode.commands.executeCommand(
-      'setContext',
-      'code-json-editor.tree-active',
-      isTreeActive
-    );
+    vscode.commands.executeCommand('setContext', 'code-json-editor.tree-active', isTreeActive);
 
     this.refreshTree();
     this._notifyTreeChanges.fire();
   }
 
   onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): void {
-    if (
-      event.document.uri.toString() ===
-      this._textEditor?.document.uri.toString()
-    ) {
+    if (event.document.uri.toString() === this._textEditor?.document.uri.toString()) {
       for (const change of event.contentChanges) {
-        const path = parser.getLocation(
-          this._text,
-          this._textEditor.document.offsetAt(change.range.start)
-        ).path;
+        const path = parser.getLocation(this._text, this._textEditor.document.offsetAt(change.range.start)).path;
         path.pop();
-        const node = path.length
-          ? parser.findNodeAtLocation(this._root!, path)
-          : void 0;
+        const node = path.length ? parser.findNodeAtLocation(this._root!, path) : void 0;
         this.refreshTree();
         this._notifyTreeChanges.fire(node?.offset);
       }
     }
   }
 
-  private _getCollapsibleState(
-    node: parser.Node
-  ): vscode.TreeItemCollapsibleState {
+  private _getCollapsibleState(node: parser.Node): vscode.TreeItemCollapsibleState {
     switch (node.type) {
       case CodeNodeType.object:
         return vscode.TreeItemCollapsibleState.Expanded;
@@ -107,10 +86,7 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
   }
 
   private _getNode(position: number): parser.Node | undefined {
-    return parser.findNodeAtLocation(
-      this._root!,
-      parser.getLocation(this._text, position).path
-    );
+    return parser.findNodeAtLocation(this._root!, parser.getLocation(this._text, position).path);
   }
 
   private _getLabel(node: parser.Node): string {
