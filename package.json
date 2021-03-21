@@ -1,6 +1,6 @@
 {
-	"name": "vscode-json-editor",
-	"displayName": "vscode-json-editor",
+	"name": "code-json-editor",
+	"displayName": "code-json-editor",
 	"description": "vscode extension for editing json",
 	"version": "0.0.1",
 	"engines": {
@@ -10,16 +10,46 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vscode-json-editor.helloWorld"
+		"onView:code-json-editor",
+		"onLanguage:json"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "vscode-json-editor.helloWorld",
-				"title": "Hello World"
+				"command": "code-json-editor.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/material/refresh.svg",
+					"dark": "icons/dark/material/refresh.svg"
+				}
 			}
-		]
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "code-json-editor",
+					"name": "Code JSON Editor"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "code-json-editor",
+				"contents": "The active document cannot be edited."
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "code-json-editor.refresh",
+					"when": "view == code-json-editor",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
@@ -47,5 +77,8 @@
 		"ts-loader": "^8.0.14",
 		"webpack": "^5.19.0",
 		"webpack-cli": "^4.4.0"
+	},
+	"dependencies": {
+		"jsonc-parser": "^3.0.0"
 	}
 }

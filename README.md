@@ -1,6 +1,6 @@
-# vscode-json-editor README
+# code-json-editor README
 
-This is the README for your extension "vscode-json-editor". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "code-json-editor". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
