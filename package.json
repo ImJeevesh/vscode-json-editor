@@ -23,6 +23,10 @@
           "light": "icons/material/light/refresh.svg",
           "dark": "icons/material/dark/refresh.svg"
         }
+      },
+      {
+        "command": "code-json-editor.view",
+        "title": "View"
       }
     ],
     "views": {
@@ -47,7 +51,13 @@
           "group": "navigation"
         }
       ],
-      "view/item/context": []
+      "view/item/context": [
+        {
+          "command": "code-json-editor.view",
+          "when": "view == code-json-editor",
+          "group": "inline"
+        }
+      ]
     }
   },
   "scripts": {
