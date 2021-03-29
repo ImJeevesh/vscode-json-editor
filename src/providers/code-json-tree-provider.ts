@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as parser from 'jsonc-parser';
-import * as path from 'path';
 import { CodeNodeType } from '../models/code-node-type.enum';
+import { CJECommandNames } from '../models/cje-command-names.enum';
 
 export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
   private _notifyTreeChanges = new vscode.EventEmitter<number | undefined | void>();
@@ -18,7 +18,15 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     const node = parser.findNodeAtLocation(this._root!, path)!;
     const treeItem = new vscode.TreeItem(this._getLabel(node), this._getCollapsibleState(node));
     treeItem.contextValue = node.type;
+    treeItem.command = <vscode.Command>{
+      command: CJECommandNames.treeItemSelection,
+      arguments: [position],
+    };
     return treeItem;
+  }
+
+  onDidSelectTreeItem(position: number): void {
+    this._highlightValueInEditor(position);
   }
 
   getChildren(position?: number): vscode.ProviderResult<number[]> {
@@ -28,6 +36,15 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     const path = parser.getLocation(this._text, position).path;
     const node = parser.findNodeAtLocation(this._root!, path);
     return Promise.resolve(this._getChildrenOffsets(node!));
+  }
+
+  getParent?(position: number): vscode.ProviderResult<number> {
+    const node = this._getNode(position);
+    let parent = node?.parent;
+    if (position === parent?.offset) {
+      return null;
+    }
+    return parent?.offset || null;
   }
 
   refreshTree(): void {
@@ -45,7 +62,7 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     const isTreeActive =
       vscode.window.activeTextEditor?.document.uri.scheme === 'file' &&
       !!vscode.window.activeTextEditor.document.languageId.match(/^jsonc?$/);
-    vscode.commands.executeCommand('setContext', 'code-json-editor.tree-active', isTreeActive);
+    vscode.commands.executeCommand('setContext', CJECommandNames.treeActive, isTreeActive);
 
     this.refreshTree();
     this._notifyTreeChanges.fire();
@@ -53,14 +70,41 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
 
   onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): void {
     if (event.document.uri.toString() === this._textEditor?.document.uri.toString()) {
-      for (const change of event.contentChanges) {
-        const path = parser.getLocation(this._text, this._textEditor.document.offsetAt(change.range.start)).path;
+      event.contentChanges.forEach((change: vscode.TextDocumentContentChangeEvent) => {
+        const path = parser.getLocation(this._text, this._textEditor!.document.offsetAt(change.range.start)).path;
         path.pop();
         const node = path.length ? parser.findNodeAtLocation(this._root!, path) : void 0;
         this.refreshTree();
         this._notifyTreeChanges.fire(node?.offset);
-      }
+      });
     }
+  }
+
+  onDidChangeTextEditorSelection(treeView: vscode.TreeView<number>): void {
+    if (this._textEditor?.selection.isEmpty) {
+      const position = this._textEditor.selection.active;
+      const path = parser.getLocation(this._text, this._textEditor!.document.offsetAt(position)).path;
+      const node = path.length ? parser.findNodeAtLocation(this._root!, path) : void 0;
+      treeView.reveal(node!.offset, { select: false, focus: true, expand: false });
+    }
+  }
+
+  private _highlightValueInEditor(position: number) {
+    const node = this._getNode(position);
+    if (node && this._textEditor) {
+      const padOffset = node.type === CodeNodeType.string ? 1 : 0;
+      const valueRange = new vscode.Range(
+        this._textEditor.document.positionAt(node.offset + padOffset),
+        this._textEditor.document.positionAt(node.offset + node.length - padOffset)
+      );
+      this._textEditor.revealRange(valueRange);
+      this._textEditor.selection = new vscode.Selection(valueRange.start, valueRange.end);
+      this._moveFocusToTextEditor();
+    }
+  }
+
+  private _moveFocusToTextEditor(): void {
+    vscode.window.showTextDocument(vscode.window.activeTextEditor!.document);
   }
 
   private _getCollapsibleState(node: parser.Node): vscode.TreeItemCollapsibleState {

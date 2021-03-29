@@ -1,19 +1,23 @@
 import * as vscode from 'vscode';
+import { CJECommandNames } from './models/cje-command-names.enum';
 import { CodeJsonTreeProvider } from './providers/code-json-tree-provider';
 
 export function activate(_context: vscode.ExtensionContext) {
   const provider = new CodeJsonTreeProvider();
 
-  _context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor(() => provider.onDidChangeActiveTextEditor()),
-    vscode.workspace.onDidChangeTextDocument(e => provider.onDidChangeTextDocument(e))
-  );
-
-  vscode.window.createTreeView('code-json-editor', {
+  const treeView = vscode.window.createTreeView('code-json-editor', {
     treeDataProvider: provider,
     showCollapseAll: true,
   });
 
+  _context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(() => provider.onDidChangeActiveTextEditor()),
+    vscode.workspace.onDidChangeTextDocument(e => provider.onDidChangeTextDocument(e)),
+    vscode.window.onDidChangeTextEditorSelection(() => provider.onDidChangeTextEditorSelection(treeView)),
+    vscode.commands.registerCommand(CJECommandNames.treeItemSelection, (position: number) =>
+      provider.onDidSelectTreeItem(position)
+    )
+  );
   provider.refreshTree();
   console.log('Congratulations, your extension "code-json-editor" is now ready!');
 }
