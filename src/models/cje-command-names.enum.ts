@@ -4,4 +4,6 @@ export enum CJECommandNames {
   highlightValue = 'code-json-editor.highlight-value',
   jumpEnd = 'code-json-editor.jump-end',
   copyValueToClipboard = 'code-json-editor.copy-value-to-clipboard',
+  copyKeyToClipboard = 'code-json-editor.copy-key-to-clipboard',
+  copyPathToClipboard = 'code-json-editor.copy-path-to-clipboard',
 }
