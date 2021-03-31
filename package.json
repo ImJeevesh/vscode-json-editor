@@ -23,6 +23,30 @@
           "light": "icons/material/light/refresh.svg",
           "dark": "icons/material/dark/refresh.svg"
         }
+      },
+      {
+        "command": "code-json-editor.highlight-value",
+        "title": "Highlight",
+        "icon": {
+          "light": "icons/material/light/highlight.svg",
+          "dark": "icons/material/dark/highlight.svg"
+        }
+      },
+      {
+        "command": "code-json-editor.jump-end",
+        "title": "Jump to End",
+        "icon": {
+          "light": "icons/material/light/visibility.svg",
+          "dark": "icons/material/dark/visibility.svg"
+        }
+      },
+      {
+        "command": "code-json-editor.copy-value-to-clipboard",
+        "title": "Copy Value to Clipboard",
+        "icon": {
+          "light": "icons/material/light/content_copy.svg",
+          "dark": "icons/material/light/content_copy.svg"
+        }
       }
     ],
     "views": {
@@ -47,7 +71,22 @@
           "group": "navigation"
         }
       ],
-      "view/item/context": []
+      "view/item/context": [
+        {
+          "command": "code-json-editor.jump-end",
+          "when": "view == code-json-editor",
+          "group": "inline"
+        },
+        {
+          "command": "code-json-editor.highlight-value",
+          "when": "view == code-json-editor",
+          "group": "inline"
+        },
+        {
+          "command": "code-json-editor.copy-value-to-clipboard",
+          "when": "view == code-json-editor"
+        }
+      ]
     }
   },
   "scripts": {

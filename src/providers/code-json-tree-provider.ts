@@ -26,7 +26,29 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
   }
 
   onDidSelectTreeItem(position: number): void {
-    this._highlightValueInEditor(position);
+    this._revealInTextEditor(position);
+  }
+
+  onDidJumpToEnd(position: number): void {
+    this._revealInTextEditor(position, false, true);
+  }
+
+  onCopyValueToClipboard(position: number): void {
+    const node = this._getNode(position);
+    if (node && this._textEditor) {
+      const padOffset = node.type === CodeNodeType.string ? 1 : 0;
+      const value = this._textEditor?.document.getText(
+        new vscode.Range(
+          this._textEditor.document.positionAt(node.offset + padOffset),
+          this._textEditor.document.positionAt(node.offset + node.length - padOffset)
+        )
+      );
+      vscode.env.clipboard.writeText(value);
+    }
+  }
+
+  onDidHighlightValue(position: number): void {
+    this._revealInTextEditor(position, true, true);
   }
 
   getChildren(position?: number): vscode.ProviderResult<number[]> {
@@ -85,11 +107,11 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
       const position = this._textEditor.selection.active;
       const path = parser.getLocation(this._text, this._textEditor!.document.offsetAt(position)).path;
       const node = path.length ? parser.findNodeAtLocation(this._root!, path) : void 0;
-      treeView.reveal(node!.offset, { select: false, focus: true, expand: false });
+      treeView.reveal(node!.offset, { select: false, expand: 3 });
     }
   }
 
-  private _highlightValueInEditor(position: number) {
+  private _revealInTextEditor(position: number, showRange = false, focusEditor = false): void {
     const node = this._getNode(position);
     if (node && this._textEditor) {
       const padOffset = node.type === CodeNodeType.string ? 1 : 0;
@@ -98,8 +120,10 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
         this._textEditor.document.positionAt(node.offset + node.length - padOffset)
       );
       this._textEditor.revealRange(valueRange);
-      this._textEditor.selection = new vscode.Selection(valueRange.start, valueRange.end);
-      this._moveFocusToTextEditor();
+      this._textEditor.selection = new vscode.Selection(showRange ? valueRange.start : valueRange.end, valueRange.end);
+      if (focusEditor) {
+        this._moveFocusToTextEditor();
+      }
     }
   }
 

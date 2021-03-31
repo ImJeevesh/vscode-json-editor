@@ -16,6 +16,13 @@ export function activate(_context: vscode.ExtensionContext) {
     vscode.window.onDidChangeTextEditorSelection(() => provider.onDidChangeTextEditorSelection(treeView)),
     vscode.commands.registerCommand(CJECommandNames.treeItemSelection, (position: number) =>
       provider.onDidSelectTreeItem(position)
+    ),
+    vscode.commands.registerCommand(CJECommandNames.highlightValue, (position: number) =>
+      provider.onDidHighlightValue(position)
+    ),
+    vscode.commands.registerCommand(CJECommandNames.jumpEnd, (position: number) => provider.onDidJumpToEnd(position)),
+    vscode.commands.registerCommand(CJECommandNames.copyValueToClipboard, (position: number) =>
+      provider.onCopyValueToClipboard(position)
     )
   );
   provider.refreshTree();
