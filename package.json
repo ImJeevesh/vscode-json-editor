@@ -47,6 +47,22 @@
           "light": "icons/material/light/content_copy.svg",
           "dark": "icons/material/light/content_copy.svg"
         }
+      },
+      {
+        "command": "code-json-editor.copy-key-to-clipboard",
+        "title": "Copy Key to Clipboard",
+        "icon": {
+          "light": "icons/material/light/content_copy.svg",
+          "dark": "icons/material/light/content_copy.svg"
+        }
+      },
+      {
+        "command": "code-json-editor.copy-path-to-clipboard",
+        "title": "Copy Path to Clipboard",
+        "icon": {
+          "light": "icons/material/light/content_copy.svg",
+          "dark": "icons/material/light/content_copy.svg"
+        }
       }
     ],
     "views": {
@@ -84,6 +100,14 @@
         },
         {
           "command": "code-json-editor.copy-value-to-clipboard",
+          "when": "view == code-json-editor"
+        },
+        {
+          "command": "code-json-editor.copy-key-to-clipboard",
+          "when": "view == code-json-editor"
+        },
+        {
+          "command": "code-json-editor.copy-path-to-clipboard",
           "when": "view == code-json-editor"
         }
       ]

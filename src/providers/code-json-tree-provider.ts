@@ -35,16 +35,18 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
 
   onCopyValueToClipboard(position: number): void {
     const node = this._getNode(position);
-    if (node && this._textEditor) {
-      const padOffset = node.type === CodeNodeType.string ? 1 : 0;
-      const value = this._textEditor?.document.getText(
-        new vscode.Range(
-          this._textEditor.document.positionAt(node.offset + padOffset),
-          this._textEditor.document.positionAt(node.offset + node.length - padOffset)
-        )
-      );
-      vscode.env.clipboard.writeText(value);
-    }
+    vscode.env.clipboard.writeText(this._getNodeValueText(node!));
+  }
+
+  onCopyKeyToClipboard(position: number): void {
+    const key = parser.getLocation(this._text, position).path.reverse()[0];
+    vscode.env.clipboard.writeText(`${key}`);
+  }
+
+  onCopyPathToClipboard(position: number): void {
+    const path = parser.getLocation(this._text, position).path;
+    const generatedPath = `[${path.map(p => (typeof p === 'string' ? `'${p}'` : p)).join('][')}]`;
+    vscode.env.clipboard.writeText(`${generatedPath}`);
   }
 
   onDidHighlightValue(position: number): void {
@@ -157,6 +159,16 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     return parser.findNodeAtLocation(this._root!, parser.getLocation(this._text, position).path);
   }
 
+  private _getNodeValueText(node: parser.Node): any {
+    const padOffset = node.type === CodeNodeType.string ? 1 : 0;
+    return this._textEditor?.document.getText(
+      new vscode.Range(
+        this._textEditor.document.positionAt(node.offset + padOffset),
+        this._textEditor.document.positionAt(node.offset + node.length - padOffset)
+      )
+    );
+  }
+
   private _getLabel(node: parser.Node): string {
     if (node.parent!.type === CodeNodeType.array) {
       const prefix = node.parent!.children!.indexOf(node).toString();
@@ -166,7 +178,7 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
       if (node.type === CodeNodeType.array) {
         return '[ ] ' + prefix;
       }
-      return prefix + ':' + node.value.toString();
+      return prefix + ':' + this._getNodeValueText(node!);
     }
 
     const property = node.parent!.children![0].value.toString();
@@ -176,12 +188,6 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     if (node.type === CodeNodeType.array) {
       return '[ ] ' + property;
     }
-    const value = this._textEditor?.document.getText(
-      new vscode.Range(
-        this._textEditor.document.positionAt(node.offset),
-        this._textEditor.document.positionAt(node.offset + node.length)
-      )
-    );
-    return `${property}: ${value}`;
+    return `${property}: ${this._getNodeValueText(node!)}`;
   }
 }

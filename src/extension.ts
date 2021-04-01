@@ -23,6 +23,12 @@ export function activate(_context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(CJECommandNames.jumpEnd, (position: number) => provider.onDidJumpToEnd(position)),
     vscode.commands.registerCommand(CJECommandNames.copyValueToClipboard, (position: number) =>
       provider.onCopyValueToClipboard(position)
+    ),
+    vscode.commands.registerCommand(CJECommandNames.copyKeyToClipboard, (position: number) =>
+      provider.onCopyKeyToClipboard(position)
+    ),
+    vscode.commands.registerCommand(CJECommandNames.copyPathToClipboard, (position: number) =>
+      provider.onCopyPathToClipboard(position)
     )
   );
   provider.refreshTree();
