@@ -17,7 +17,7 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
     const path = parser.getLocation(this._text, position).path;
     const node = parser.findNodeAtLocation(this._root!, path)!;
     const treeItem = new vscode.TreeItem(this._getLabel(node), this._getCollapsibleState(node));
-    treeItem.contextValue = node.type;
+    treeItem.contextValue = this._generateContextValue(node);
     treeItem.command = <vscode.Command>{
       command: CJECommandNames.treeItemSelection,
       arguments: [position],
@@ -111,6 +111,11 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
       const node = path.length ? parser.findNodeAtLocation(this._root!, path) : void 0;
       treeView.reveal(node!.offset, { select: false, expand: 3 });
     }
+  }
+
+  private _generateContextValue(node: parser.Node): string {
+    // type:<type>||parent:<parent-type>
+    return `type:${node.type}||parent:${node.parent?.type ?? ''}`;
   }
 
   private _revealInTextEditor(position: number, showRange = false, focusEditor = false): void {

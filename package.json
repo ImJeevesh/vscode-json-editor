@@ -104,7 +104,7 @@
         },
         {
           "command": "code-json-editor.copy-key-to-clipboard",
-          "when": "view == code-json-editor"
+          "when": "view == code-json-editor && viewItem =~ /^((?!parent:array).)*$/"
         },
         {
           "command": "code-json-editor.copy-path-to-clipboard",
