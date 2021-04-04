@@ -48,6 +48,9 @@ export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
     const stylesUri = this._webview.asWebviewUri(vscode.Uri.joinPath(this._rootPathUri, 'styles.css'));
     const mainJsUri = this._webview.asWebviewUri(vscode.Uri.joinPath(this._rootPathUri, 'main.js'));
 
+    // TODO: automate this
+    const libJsonataUri = this._webview.asWebviewUri(vscode.Uri.joinPath(this._rootPathUri, 'libs', 'jsonata.js'));
+
     // TODO: move to index.html and gen build system
     this._html = `
     <!DOCTYPE html>
@@ -65,9 +68,14 @@ export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
 				<title>Code JSON Editor</title>
 			</head>
 			<body>
-				<h1>Under Development!</h1>
-        <button id="toggle-body-border-btn">Toggle Border</button>
+        <div id="app">
+          <h5>Under Development!</h5>
+          <textarea id="jsonata-expression">Address.City</textarea>
+          <button id="jsonata-evaluate-btn">Evaluate</button>
+          <p id="jsonata-result"></p>
+        </div>
 				<script nonce="${nonce}" src="${mainJsUri}"></script>
+				<script nonce="${nonce}" src="${libJsonataUri}"></script>
 			</body>
 			</html>
     `;

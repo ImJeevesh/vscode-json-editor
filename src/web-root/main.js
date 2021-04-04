@@ -1,18 +1,66 @@
 (function () {
   const vscode = acquireVsCodeApi();
 
-  const borderToggler = document.querySelector('#toggle-body-border-btn');
-  if (borderToggler) {
-    borderToggler.addEventListener('click', () => toggleBorder());
-  }
+  document.querySelector('#jsonata-evaluate-btn')
+    .addEventListener('click', () => evaluateJsonataExpression());
 
   function getCurrentState() {
-    return vscode.getState() || { showBorder: false };
+    return vscode.getState() || { json: sampleJson() };
   }
 
-  function toggleBorder() {
-    const oldState = getCurrentState();
-    document.body.classList.toggle('border-purple');
-    vscode.setState({ showBorder: !oldState.showBorder });
+  function sampleJson() {
+    return {
+      "FirstName": "Fred",
+      "Surname": "Smith",
+      "Age": 28,
+      "Address": {
+        "Street": "Hursley Park",
+        "City": "Winchester",
+        "Postcode": "SO21 2JN"
+      },
+      "Phone": [
+        {
+          "type": "home",
+          "number": "0203 544 1234"
+        },
+        {
+          "type": "office",
+          "number": "01962 001234"
+        },
+        {
+          "type": "office",
+          "number": "01962 001235"
+        },
+        {
+          "type": "mobile",
+          "number": "077 7700 1234"
+        }
+      ],
+      "Email": [
+        {
+          "type": "work",
+          "address": ["fred.smith@my-work.com", "fsmith@my-work.com"]
+        },
+        {
+          "type": "home",
+          "address": ["freddy@my-social.com", "frederic.smith@very-serious.com"]
+        }
+      ],
+      "Other": {
+        "Over 18 ?": true,
+        "Misc": null,
+        "Alternative.Address": {
+          "Street": "Brick Lane",
+          "City": "London",
+          "Postcode": "E1 6RF"
+        }
+      }
+    };
+  }
+
+  function evaluateJsonataExpression() {
+    document.querySelector('#jsonata-result').innerHTML = `Before Result: `;
+    const expression = document.querySelector('#jsonata-expression').innerHTML;
+    document.querySelector('#jsonata-result').innerHTML = `Result: ${jsonata(expression).evaluate(sampleJson())}`;
   }
 })();
