@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 
 function getNonce() {
-	let text = '';
-	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 32; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
+  let text = '';
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 32; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 }
 
 export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
   private _webviewView: vscode.WebviewView | undefined;
-	private _html: string | undefined;
+  private _html: string | undefined;
 
   private get _webview(): vscode.Webview {
     return this._webviewView!.webview;
@@ -21,9 +21,7 @@ export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
     return vscode.Uri.joinPath(this._extensionUri, 'src', 'web-root');
   }
 
-  constructor(
-    private _extensionUri: vscode.Uri
-  ) {}
+  constructor(private _extensionUri: vscode.Uri) {}
 
   async resolveWebviewView(
     _webviewView: vscode.WebviewView,
@@ -34,15 +32,11 @@ export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
     this._webview.options = {
       enableScripts: true,
       enableCommandUris: true,
-      localResourceRoots: [
-        this._rootPathUri
-      ]
+      localResourceRoots: [this._rootPathUri],
     };
 
     this._webview.html = await this._getHtml();
-    this._webview.onDidReceiveMessage(data => {
-
-    });  
+    this._webview.onDidReceiveMessage(data => {});
   }
 
   private async _getHtml() {

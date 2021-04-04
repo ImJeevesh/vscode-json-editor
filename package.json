@@ -70,13 +70,13 @@
         {
           "id": "code-json-editor",
           "name": "Code JSON Editor - Tree",
-					"contextualTitle": "Code JSON Editor - Tree"
+          "contextualTitle": "Code JSON Editor - Tree"
         },
         {
           "id": "code-json-editor.web-view",
           "name": "Code JSON Editor",
-					"contextualTitle": "Code JSON Editor",
-					"type": "webview"
+          "contextualTitle": "Code JSON Editor",
+          "type": "webview"
         }
       ]
     },
@@ -130,7 +130,9 @@
     "pretest": "npm run test-compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "format": "prettier -w -l ./"
+    "format": "prettier -w -l ./src",
+    "prepare-libs": "node tools/copy-scripts.js",
+    "postinstall": "npm run prepare-libs"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
@@ -150,6 +152,7 @@
     "webpack-cli": "^4.4.0"
   },
   "dependencies": {
+    "jsonata": "^1.8.4",
     "jsonc-parser": "^3.0.0"
   }
 }
