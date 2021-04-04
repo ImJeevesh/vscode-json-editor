@@ -11,7 +11,9 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
   private _text: string = '';
   private _root?: parser.Node;
 
-  constructor() {}
+  constructor() {
+    this.refreshTree();
+  }
 
   getTreeItem(position: number): vscode.TreeItem {
     const path = parser.getLocation(this._text, position).path;
@@ -111,6 +113,29 @@ export class CodeJsonTreeProvider implements vscode.TreeDataProvider<number> {
       const node = path.length ? parser.findNodeAtLocation(this._root!, path) : void 0;
       treeView.reveal(node!.offset, { select: false, expand: 3 });
     }
+  }
+
+  registerSubscriptions(): vscode.Disposable {
+    return vscode.Disposable.from(
+      vscode.window.onDidChangeActiveTextEditor(() => this.onDidChangeActiveTextEditor()),
+      vscode.workspace.onDidChangeTextDocument(e => this.onDidChangeTextDocument(e)),
+      vscode.commands.registerCommand(CJECommandNames.treeItemSelection, (position: number) =>
+        this.onDidSelectTreeItem(position)
+      ),
+      vscode.commands.registerCommand(CJECommandNames.highlightValue, (position: number) =>
+        this.onDidHighlightValue(position)
+      ),
+      vscode.commands.registerCommand(CJECommandNames.jumpEnd, (position: number) => this.onDidJumpToEnd(position)),
+      vscode.commands.registerCommand(CJECommandNames.copyValueToClipboard, (position: number) =>
+        this.onCopyValueToClipboard(position)
+      ),
+      vscode.commands.registerCommand(CJECommandNames.copyKeyToClipboard, (position: number) =>
+        this.onCopyKeyToClipboard(position)
+      ),
+      vscode.commands.registerCommand(CJECommandNames.copyPathToClipboard, (position: number) =>
+        this.onCopyPathToClipboard(position)
+      )
+    );
   }
 
   private _generateContextValue(node: parser.Node): string {

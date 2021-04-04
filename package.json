@@ -69,7 +69,14 @@
       "explorer": [
         {
           "id": "code-json-editor",
-          "name": "Code JSON Editor"
+          "name": "Code JSON Editor - Tree",
+					"contextualTitle": "Code JSON Editor - Tree"
+        },
+        {
+          "id": "code-json-editor.web-view",
+          "name": "Code JSON Editor",
+					"contextualTitle": "Code JSON Editor",
+					"type": "webview"
         }
       ]
     },
