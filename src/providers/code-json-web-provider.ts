@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as parser from 'jsonc-parser';
+import { CJEEvent } from '../models/cje-event';
 
 function getNonce() {
   let text = '';
@@ -12,6 +14,8 @@ function getNonce() {
 export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
   private _webviewView: vscode.WebviewView | undefined;
   private _html: string | undefined;
+  private _json: any;
+  private _textEditor: vscode.TextEditor | undefined; 
 
   private get _webview(): vscode.Webview {
     return this._webviewView!.webview;
@@ -35,8 +39,46 @@ export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this._rootPathUri],
     };
 
+    this._webview.onDidReceiveMessage(data => this._onDidReceiveMessage(data));
     this._webview.html = await this._getHtml();
-    this._webview.onDidReceiveMessage(data => {});
+  }
+
+  refreshJson(): void {
+    this._textEditor = vscode.window.activeTextEditor;
+
+    if (this._textEditor?.document) {
+      this._json = parser.parse(this._textEditor.document.getText());
+      this._updateJsonToWebview();
+    }
+  }
+
+  registerSubscriptions(): vscode.Disposable {
+    return vscode.Disposable.from(
+      vscode.window.onDidChangeActiveTextEditor(() => this.onDidChangeActiveTextEditor()),
+      vscode.workspace.onDidChangeTextDocument(e => this.onDidChangeTextDocument(e)),
+    );
+  }
+
+  onDidChangeActiveTextEditor(): void {
+    this.refreshJson();
+  }
+
+  onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): void {
+    if (event.document.uri.toString() === this._textEditor?.document.uri.toString()) {
+      this.refreshJson();
+    }
+  }
+
+  private _onDidReceiveMessage(data: CJEEvent): vscode.Disposable | void {
+    switch (data.type) {
+      case 'get-initial-json':
+        this.refreshJson();
+        break;
+    }
+  }
+
+  private _updateJsonToWebview() {
+    this._webview.postMessage(<CJEEvent> { type: 'json', arguments: [this._json] });
   }
 
   private async _getHtml() {
@@ -70,9 +112,11 @@ export class CodeJsonWebProvider implements vscode.WebviewViewProvider {
 			<body>
         <div id="app">
           <h5>Under Development!</h5>
-          <textarea id="jsonata-expression">Address.City</textarea>
-          <button id="jsonata-evaluate-btn">Evaluate</button>
-          <p id="jsonata-result"></p>
+          <div id="jsonata">
+            <textarea id="jsonata-expression">webapp</textarea>
+            <button id="jsonata-evaluate-btn">Evaluate</button>
+            <pre id="jsonata-result"></pre>
+          </div>
         </div>
 				<script nonce="${nonce}" src="${mainJsUri}"></script>
 				<script nonce="${nonce}" src="${libJsonataUri}"></script>

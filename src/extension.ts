@@ -16,6 +16,7 @@ export function activate(_context: vscode.ExtensionContext) {
     treeDataProvider.registerSubscriptions(),
     vscode.window.onDidChangeTextEditorSelection(() => treeDataProvider.onDidChangeTextEditorSelection(treeView)),
     // webProvider
+    webProvider.registerSubscriptions(),
     vscode.window.registerWebviewViewProvider('code-json-editor.web-view', webProvider)
   );
   console.log('Congratulations, your extension "code-json-editor" is now ready!');
